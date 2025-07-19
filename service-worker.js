@@ -12,12 +12,9 @@ if (workbox) {
     // Puedes añadir manualmente archivos específicos que quieras precachear.
     // Aunque el objetivo es la caché automática, la página principal y el manifest son esenciales.
     workbox.precaching.precacheAndRoute([
-        { url: '/', revision: '1' },
-        { url: '/index.html', revision: '1' },
-        { url: '/manifest.json', revision: '1' },
-        { url: '/icons/icon-192x192.png', revision: '1' },
-        { url: '/icons/icon-512x512.png', revision: '1' },
-        // Puedes añadir aquí otros recursos críticos si sabes que siempre serán necesarios.
+        { url: 'https://prfol.github.io/demo02/', revision: '1' },
+        { url: 'https://prfol.github.io/demo02/index.html', revision: '1' },
+        { url: 'https://prfol.github.io/demo02/manifest.json', revision: '1' },
     ]);
 
     // Estrategia de caché para los activos de la página (CSS, JS, imágenes, etc.)

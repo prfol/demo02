@@ -1,4 +1,4 @@
-    <script>
+
         let deferredPrompt;
         const installButton = document.getElementById('installButton');
 
@@ -39,4 +39,3 @@
                     });
             });
         }
-    </script>

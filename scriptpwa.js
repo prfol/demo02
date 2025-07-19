@@ -1,31 +1,33 @@
+    <script>
         let deferredPrompt;
         const installButton = document.getElementById('installButton');
 
         window.addEventListener('beforeinstallprompt', (e) => {
-            // Previene que el mini-infobar aparezca automáticamente
+            // Previene que el navegador muestre automáticamente el prompt
             e.preventDefault();
-            // Guarda el evento para que se pueda disparar más tarde.
+            // Guarda el evento para poder dispararlo después
             deferredPrompt = e;
             // Muestra el botón de instalación
             installButton.style.display = 'block';
         });
 
-        installButton.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                // Oculta el botón de instalación
-                installButton.style.display = 'none';
-                // Muestra el prompt de instalación
-                deferredPrompt.prompt();
-                // Espera a que el usuario responda al prompt
-                const { outcome } = await deferredPrompt.userChoice;
-                // Opcionalmente, registra el resultado
-                console.log(`El usuario respondió al prompt de instalación: ${outcome}`);
-                // Resetea el evento diferido, ya que solo se puede usar una vez
-                deferredPrompt = null;
-            }
+        installButton.addEventListener('click', () => {
+            // Oculta el botón
+            installButton.style.display = 'none';
+            // Muestra el prompt de instalación
+            deferredPrompt.prompt();
+            // Espera a que el usuario responda al prompt
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('El usuario aceptó la instalación de la PWA');
+                } else {
+                    console.log('El usuario rechazó la instalación de la PWA');
+                }
+                deferredPrompt = null; // Limpia el prompt
+            });
         });
 
-        // Registrar el Service Worker
+        // Registro del Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('https://prfol.github.io/demo02/service-worker.js')
@@ -33,7 +35,8 @@
                         console.log('Service Worker registrado con éxito:', registration);
                     })
                     .catch(error => {
-                        console.log('Fallo el registro del Service Worker:', error);
+                        console.error('Fallo el registro del Service Worker:', error);
                     });
             });
         }
+    </script>

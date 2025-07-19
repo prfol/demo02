@@ -320,7 +320,7 @@
                 <span class="pr-footer mx-2"><i class="fa fa-share"></i> Share</span>
                 </a>
                 <a id="enlace-instalar" class="text-decoration-none" data-bs-target="#modalInstalar" data-bs-toggle="modal" href="#">
-                <span class="pr-footer mx-2"><i class="fa fa-download"></i> Instalar</span>
+                <span class="pr-footer mx-2"><i class="fa fa-download"></i> Install</span>
                 </a>				
             </div>
             <!--<div class="toast-container position-absolute top-0 start-50 translate-middle-x"> -->
@@ -496,6 +496,53 @@
             </div>
         </div>
         <!-- /Modal -->
+		
+        <script>
+            function esFirefox() {
+            	return typeof InstallTrigger !== 'undefined'; // Esta propiedad es única de Firefox
+            }
+            
+            function isPWAallowed() {
+            	if (esFirefox()) {
+            		return false;
+            	}
+            	if (window.matchMedia('(display-mode: standalone)').matches) {
+            		return false;
+            	}
+            	return true;
+            }
+              
+            if (isPWAallowed()) {
+            	  const installBtn = document.getElementById('install-btn');
+            
+            	  window.addEventListener('beforeinstallprompt', (event) => {
+            		event.preventDefault();
+            		installBtn.style.display = 'block';
+            		installBtn.addEventListener('click', () => {
+            		  event.prompt();
+            		  installBtn.style.display = 'none';
+            		  window.deferredPrompt = null;
+            		});
+            	  });
+				  				  
+				// Registro del Service Worker
+				if ('serviceWorker' in navigator) {
+					window.addEventListener('load', () => {
+						navigator.serviceWorker.register('https://prfol.github.io/demo02/service-worker.js')
+							.then(registration => {
+								console.log('Service Worker registrado con éxito:', registration);
+							})
+							.catch(error => {
+								console.error('Fallo el registro del Service Worker:', error);
+							});
+					});
+				}				  
+            }
+            else {
+            	  document.getElementById('enlace-instalar').style.display = 'none';			  
+            }
+        </script>
+
         <!-- Modal -->
         <div class="modal fade" id="modal18" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -684,52 +731,6 @@
             </div>
         </div>
         <!-- /Modal -->
-		
-        <script>
-            function esFirefox() {
-            	return typeof InstallTrigger !== 'undefined'; // Esta propiedad es única de Firefox
-            }
-            
-            function isPWAallowed() {
-            	if (esFirefox()) {
-            		return false;
-            	}
-            	if (window.matchMedia('(display-mode: standalone)').matches) {
-            		return false;
-            	}
-            	return true;
-            }
-              
-            if (isPWAallowed()) {
-            	  const installBtn = document.getElementById('install-btn');
-            
-            	  window.addEventListener('beforeinstallprompt', (event) => {
-            		event.preventDefault();
-            		installBtn.style.display = 'block';
-            		installBtn.addEventListener('click', () => {
-            		  event.prompt();
-            		  installBtn.style.display = 'none';
-            		  window.deferredPrompt = null;
-            		});
-            	  });
-				  				  
-				// Registro del Service Worker
-				if ('serviceWorker' in navigator) {
-					window.addEventListener('load', () => {
-						navigator.serviceWorker.register('https://prfol.github.io/demo02/service-worker.js')
-							.then(registration => {
-								console.log('Service Worker registrado con éxito:', registration);
-							})
-							.catch(error => {
-								console.error('Fallo el registro del Service Worker:', error);
-							});
-					});
-				}				  
-            }
-            else {
-            	  document.getElementById('enlace-instalar').style.display = 'none';			  
-            }
-        </script>
 		
         <div id="addtoany" style="position: static;">
             <div class="a2a_overlay" id="a2a_overlay"></div>

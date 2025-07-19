@@ -485,7 +485,7 @@
                                 don't worry, you can uninstall it whenever you need.
                             </p>
                             <div class="d-grid gap-2">
-                                <button id="install-btn" class="btn btn-outline-secondary btn-sm" type="button"><b>Install</b></button>
+                                <button id="installButton" class="btn btn-outline-secondary btn-sm" type="button"><b>Install</b></button>
                             </div>
                         </div>
                     </div>
@@ -684,55 +684,9 @@
             </div>
         </div>
         <!-- /Modal -->
-        <!--
-            <script>
-              if ('serviceWorker' in navigator) {
-            	window.addEventListener('load', () => {
-            	  navigator.serviceWorker.register('/wp-content/uploads/sites/25/service-worker.js')
-            		.then(registration  
-             => {
-            		  console.log('Service Worker registrado:', registration);
-            		})
-            		.catch(error => {
-            		  console.error('Error al registrar el Service Worker:', error);  
-            
-            		});
-            	});
-              }
-            </script>
-            -->
-        <script>
-            function esFirefox() {
-            	return typeof InstallTrigger !== 'undefined'; // Esta propiedad es única de Firefox
-            }
-            
-            function isPWAallowed() {
-            	if (esFirefox()) {
-            		return false;
-            	}
-            	if (window.matchMedia('(display-mode: standalone)').matches) {
-            		return false;
-            	}
-            	return true;
-            }
-              
-            if (isPWAallowed()) {
-            	  const installBtn = document.getElementById('install-btn');
-            
-            	  window.addEventListener('beforeinstallprompt', (event) => {
-            		event.preventDefault();
-            		installBtn.style.display = 'block';
-            		installBtn.addEventListener('click', () => {
-            		  event.prompt();
-            		  installBtn.style.display = 'none';
-            		  window.deferredPrompt = null;
-            		});
-            	  });
-            }
-            else {
-            	  document.getElementById('enlace-instalar').style.display = 'none';			  
-            }
-        </script>
+		
+		<script src="scriptpwa.js"></script>
+		
         <div id="addtoany" style="position: static;">
             <div class="a2a_overlay" id="a2a_overlay"></div>
             <div id="a2a_modal" class="a2a_modal a2a_hide" role="dialog" tabindex="-1" aria-label="">

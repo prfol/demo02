@@ -2,8 +2,6 @@ const CACHE_NAME = 'my-pwa-cache-v1';
 
 self.addEventListener('install', (event) => {
     console.log('Service Worker: Evento de instalación');
-    // No pre-cacheamos nada aquí, la estrategia es cachear al momento de la solicitud.
-    // Esto asegura que el Service Worker se instale rápidamente.
     self.skipWaiting(); // Activa el nuevo Service Worker inmediatamente
 });
 
@@ -57,10 +55,7 @@ self.addEventListener('fetch', (event) => {
                     return response;
                 })
                 .catch((error) => {
-                    // Si falla la red y el recurso no está en caché, puedes servir una página offline
                     console.error('Service Worker: Error al obtener o cachear:', error);
-                    // Aquí podrías devolver una página offline.html si la tuvieras.
-                    // return caches.match('/offline.html');
                 });
         })
     );

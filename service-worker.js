@@ -1,54 +1,90 @@
-const CACHE_NAME = 'my-pwa-cache-v1';
-const urlsToCache = [
-  './',
-  './index.html',
-  './styles.css', // Archivo CSS de tu página
-  './script.js', // Archivo JavaScript de tu página (si tienes)
-  './images/icon-192x192.png',
-  './images/icon-512x512.png'
-  // Agrega aquí todas las URLs de los recursos que quieres cachear
-];
+// Importa las librerías de Workbox desde una CDN
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.0.0/workbox-sw.js');
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
-  );
-});
+if (workbox) {
+    console.log(`¡Yay! Workbox está cargado 🎉`);
 
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Si el recurso está en caché, lo devuelve
-        if (response) {
-          return response;
-        }
-        // Si no está en caché, intenta obtenerlo de la red
-        return fetch(event.request)
-          .catch(() => {
-            // Esto es útil para páginas sin conexión, puedes devolver una página offline.html
-            // return caches.match('./offline.html');
-            console.log('Offline: No resource found in cache or network failed.');
-          });
-      })
-  );
-});
+    // Configuración de depuración (opcional)
+    // workbox.core.set
+    workbox.core.setLogLevel(workbox.core.LOG_LEVEL.debug);
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
+    // Precaching de recursos estáticos básicos
+    // Puedes añadir manualmente archivos específicos que quieras precachear.
+    // Aunque el objetivo es la caché automática, la página principal y el manifest son esenciales.
+    workbox.precaching.precacheAndRoute([
+        { url: '/', revision: '1' },
+        { url: '/index.html', revision: '1' },
+        { url: '/manifest.json', revision: '1' },
+        { url: '/icons/icon-192x192.png', revision: '1' },
+        { url: '/icons/icon-512x512.png', revision: '1' },
+        // Puedes añadir aquí otros recursos críticos si sabes que siempre serán necesarios.
+    ]);
+
+    // Estrategia de caché para los activos de la página (CSS, JS, imágenes, etc.)
+    // Esta es la parte clave para la caché automática de contenido
+    workbox.routing.registerRoute(
+        // Expresión regular que coincide con todas las solicitudes de la misma "origin"
+        // y excluye las solicitudes de la extensión Chrome y otros tipos específicos.
+        ({ request }) => request.destination === 'document' ||
+                         request.destination === 'script' ||
+                         request.destination === 'style' ||
+                         request.destination === 'image' ||
+                         request.destination === 'font',
+        new workbox.strategies.StaleWhileRevalidate({
+            cacheName: 'mi-pwa-cache-v1',
+            plugins: [
+                new workbox.expiration.ExpirationPlugin({
+                    // Cacha hasta 50 activos diferentes.
+                    maxEntries: 50,
+                    // Los activos expirarán después de 30 días.
+                    maxAgeSeconds: 30 * 24 * 60 * 60,
+                }),
+                new workbox.cacheableResponse.CacheableResponsePlugin({
+                    statuses: [0, 200], // Almacena respuestas con estado 0 (opaque) o 200 (OK)
+                }),
+            ],
         })
-      );
-    })
-  );
-});
+    );
+
+    // Estrategia de caché para otras solicitudes (ej. APIs, si las hubiera)
+    // Para cualquier otra ruta que no sea estática y que quieras cachear
+    workbox.routing.registerRoute(
+        ({ url }) => url.origin === self.location.origin, // Coincide con todas las peticiones del mismo origen
+        new workbox.strategies.NetworkFirst({
+            cacheName: 'mi-pwa-dynamic-cache-v1',
+            plugins: [
+                new workbox.expiration.ExpirationPlugin({
+                    maxEntries: 20,
+                    maxAgeSeconds: 7 * 24 * 60 * 60, // 7 días
+                }),
+            ],
+        })
+    );
+
+    // Opcional: Caché de Google Fonts
+    workbox.routing.registerRoute(
+        /^https:\/\/fonts\.googleapis\.com/,
+        new workbox.strategies.StaleWhileRevalidate({
+            cacheName: 'google-fonts-stylesheets',
+        })
+    );
+
+    workbox.routing.registerRoute(
+        /^https:\/\/fonts\.gstatic\.com/,
+        new workbox.strategies.CacheFirst({
+            cacheName: 'google-fonts-webfonts',
+            plugins: [
+                new workbox.cacheableResponse.CacheableResponsePlugin({
+                    statuses: [0, 200],
+                }),
+                new workbox.expiration.ExpirationPlugin({
+                    maxAgeSeconds: 60 * 60 * 24 * 365, // 1 año
+                    maxEntries: 30,
+                }),
+            ],
+        })
+    );
+
+} else {
+    console.log(`¡Boo! Workbox no se pudo cargar 😬`);
+}

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'my-pwa-cache-v2';
+const CACHE_NAME = 'my-pwa-cache-v3';
 
 self.addEventListener('install', (event) => {
     console.log('Service Worker: Evento de instalación');
@@ -29,6 +29,11 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    if (event.request.url.startsWith('chrome-extension://')) {
+        console.log('Service Worker: Ignorando solicitud de chrome-extension:', event.request.url);
+        return;
+    }
+	
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             // Si el recurso está en caché, lo devolvemos

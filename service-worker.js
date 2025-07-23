@@ -33,7 +33,7 @@ self.addEventListener('fetch', (event) => {
         console.log('Service Worker: Ignorando solicitud de chrome-extension:', event.request.url);
         return;
     }
-
+	
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             // Si el recurso está en caché, lo devolvemos
